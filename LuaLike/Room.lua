@@ -1,13 +1,13 @@
 local Draw = require("Draw")
 --Room has fixed flipped issue
 -- Class
-local Room = 
-{ roomHeight = 0, 
-  roomWidth = 0, 
-  maxRoomHeight = 0, 
-  maxRoomWidth= 0, 
-  startingYPoint = 0, 
-  startingXPoint= 0, 
+local Room =
+{ roomHeight = 0,
+  roomWidth = 0,
+  maxRoomHeight = 0,
+  maxRoomWidth= 0,
+  startingYPoint = 0,
+  startingXPoint= 0,
   roomMap = {} }
 local RoomMT = {__index = Room}
 
@@ -15,7 +15,7 @@ local RoomMT = {__index = Room}
 
 -- Creates a room for a chunk and fills the rest of the space with empty tiles.
 local function createRoomMap ()
-  
+
   local roomMap = {}
   for i=1, Room.maxRoomHeight do
     roomMap[i] = {}
@@ -34,24 +34,24 @@ end
 -- Constructor
 function Room:new (o, maxRoomHeight, maxRoomWidth, seed)
   local o = o or {}
-  
+
   math.randomseed(seed)
-  
+
   self.maxRoomHeight = maxRoomHeight
   self.maxRoomWidth= maxRoomWidth
-  
+
   -- Room max- and minsize are choosen randomly
   local randomMinSize = math.random(4, 5)/10
-  local randomMaxSize = math.random(6, 8)/10
+  local randomMaxSize = math.random(6, 7)/10
 
   self.roomHeight = math.random(math.floor(self.maxRoomHeight*randomMinSize), math.floor(self.maxRoomHeight*randomMaxSize))
   self.roomWidth = math.random(math.floor(self.maxRoomWidth*randomMinSize), math.floor(self.maxRoomWidth*randomMaxSize))
-  
-  self.startingYPoint = math.random(2, maxRoomHeight-self.roomHeight - 1)
-  self.startingXPoint = math.random(2, maxRoomWidth-self.roomWidth - 1)
-  
+
+  self.startingYPoint = math.random(2, self.maxRoomHeight-self.roomHeight - 1)
+  self.startingXPoint = math.random(2, self.maxRoomWidth-self.roomWidth - 1)
+
   self.roomMap = createRoomMap ()
-  
+
   return setmetatable(o, RoomMT)
 end
 

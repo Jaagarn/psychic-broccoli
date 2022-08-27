@@ -7,15 +7,15 @@ local PathMaker = require "PathMaker"
 local ConnectionMaker = require "ConnectionMaker"
 
 -- Class
-local MapGenerator = {height = 0, width = 0, map = {}, chunkYSide = 0, chunkXside = 0, chunks = {}}
-local MapGeneratorMT = {__index = MapGenerator}
+local MapGenerator = { height = 0, width = 0, map = {}, chunkYSide = 0, chunkXside = 0, chunks = {} }
+local MapGeneratorMT = { __index = MapGenerator }
 
 -- Private Methods
 
 -- Just creates and empty array that is the basis for the whole map. This is also why y and x are "flipped",
 -- I.E you natually add all rows before you add columns in an 2D array.
 local function createMap ()
-  
+
   local map  = {}
   for i=1,MapGenerator.height do
     map[i] = {}
@@ -23,20 +23,20 @@ local function createMap ()
       map[i][j] = Draw.MapPixel.EMPTY
     end
   end
-  
+
   return map
-  
+
 end
 
 -- Adds rooms of random size and width to the empty map. posY and posX are the starting position on the map.
 -- maxY and maxX is the maximum height and width for contanier of the room. So "class" Room will produce a random sized room that
 -- can be contained inside the maxY and maxX and the rest of container will be empty
 local function addRoom (posY, posX, maxY, maxX, seed)
-  
+
   local room = Room:new(nil, maxY, maxX, seed)
   local roomMap = room:getRoomMap()
   local roomMapY = 1
-  
+
   for i=posY, posY + maxY - 1 do
     local roomMapX = 1
     for j=posX, posX + maxX - 1 do
@@ -45,7 +45,7 @@ local function addRoom (posY, posX, maxY, maxX, seed)
     end
     roomMapY = roomMapY + 1
   end
-  
+
   return room
 
 end
@@ -58,7 +58,7 @@ local function addSpecialRoom(posY, posX, maxY, maxX, whatKind, chunkY, chunkX)
   local room = SpecialRoom:new(nil, maxY, maxX, whatKind, chunkY, chunkX)
   local roomMap = room:getRoomMap()
   local roomMapY = 1
-  
+
   for i=posY, posY + maxY - 1 do
     local roomMapX = 1
     for j=posX, posX + maxX - 1 do
@@ -67,7 +67,7 @@ local function addSpecialRoom(posY, posX, maxY, maxX, whatKind, chunkY, chunkX)
     end
     roomMapY = roomMapY + 1
   end
-  
+
   return room
 end
 
@@ -76,14 +76,14 @@ end
 -- paths and connections between the chunks, and therefore the rooms.
 -- There is a 20% chance that no room will be added to a chunk for variance
 local function fillMapWithRooms()
-  
+
   math.randomseed(os.time())
   local endCorner = math.random(1,4)
   local endRoomY = 0
   local endRoomX = 0
   local startRoomY = math.random(5,6)
   local startRoomX = math.random(5,6)
-  
+
   if(endCorner == 1) then
     endRoomY = 1
     endRoomX = 1
@@ -97,15 +97,15 @@ local function fillMapWithRooms()
     endRoomY = 10
     endRoomX = 10
   end
-  
+
   local addedAllY = 1
   local yChunk = 1
-  
+
   while (addedAllY <= MapGenerator.height)
   do
     local addedAllXInARow = 1
     local xChunk = 1
-  
+
     while(addedAllXInARow <= MapGenerator.width)
     do
       if(yChunk == endRoomY and xChunk == endRoomX) then
@@ -135,15 +135,15 @@ local function fillMapWithRooms()
       xChunk = xChunk + 1
       addedAllXInARow = addedAllXInARow + MapGenerator.chunkXside
     end
-    yChunk = yChunk + 1 
+    yChunk = yChunk + 1
     addedAllY = addedAllY + MapGenerator.chunkYSide;
   end
 end
 
 -- When everything else has been added the walls are drawn where there is empty tiles around a floor tile
 local function drawWalls()
-  for i=1,MapGenerator.height do
-    for j=1,MapGenerator.width do
+  for i = 1,MapGenerator.height do
+    for j = 1,MapGenerator.width do
       if(MapGenerator.map[i][j] == Draw.MapPixel.FLOOR) then
         for k = i-1, i+1 do
           for l = j-1, j+1 do
@@ -158,9 +158,11 @@ local function drawWalls()
 end
 
 -- Constructor
-function MapGenerator:new (o, mapSize)
+function MapGenerator:new (o, mapSize, ySize, xSize)
   local o = o or {}
-  
+
+  -- It's not difficut to add more mapsizes if you want, but the chunks should not be smaller than 10
+  -- due to how Room is made
   if(mapSize == 1) then
     self.height = 100
     self.width = 200
@@ -175,32 +177,32 @@ function MapGenerator:new (o, mapSize)
     self.height = 200
     self.width = 400
     self.chunkYSide = 20
-    self.chunkXside = 40 
+    self.chunkXside = 40
   else
-    self.height = 100
-    self.width = 200
-    self.chunkYSide = 10
-    self.chunkXside = 20
+    self.height = ySize
+    self.width = xSize
+    self.chunkYSide = math.floor(ySize/10)
+    self.chunkXside = math.floor(xSize/10)
   end
-  
+
   for i=1, 10 do
     MapGenerator.chunks[i] = {}
     for j=1, 10 do
       MapGenerator.chunks[i][j] = 0
     end
   end
-  
+
   self.map = createMap()
   fillMapWithRooms()
-  
+
   local pathMaker = PathMaker:new(nil, self.chunks, self.map)
   self.chunks, self.map = pathMaker:getChunksAndMapWithPaths()
-  
+
   local connectionMaker = ConnectionMaker:new(nil, self.chunks, self.map, self.chunkYSide, self.chunkXside)
   self.chunks, self.map = connectionMaker:getChunksAndMapWithConnections()
-  
+
   drawWalls()
-  
+
   return setmetatable(o, MapGeneratorMT)
 end
 
@@ -216,5 +218,5 @@ end
 function MapGenerator:getMap ()
   return MapGenerator.map
 end
-  
+
 return MapGenerator

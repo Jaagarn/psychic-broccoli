@@ -1,8 +1,8 @@
 local Draw = require("Draw")
 
 -- Class
-local PathMaker = 
-{ chunks = {}, 
+local PathMaker =
+{ chunks = {},
   map = {} }
 local PathMakerMT = {__index = PathMaker}
 
@@ -76,97 +76,98 @@ end
 
 --Connects all chunks in a column in a section, for all columns left of the center
 local function addPathsToLeftColumn()
-  
+
   local startY = 5
   local endY = 6
   local startX = 5
-  
+
   while(startY > 0) do
     for i = startY, endY - 1  do
       local firstChunk = PathMaker.chunks[i][startX]
       local secondChunk = PathMaker.chunks[i+1][startX]
-    
+
       local firstChunkY = 0
       local firstChunkX = 0
-  
+
       firstChunkY, firstChunkX = getYXFromChunk(firstChunk)
-  
+
       local secondChunkY = 0
       local secondChunkX = 0
-    
+
       secondChunkY, secondChunkX = getYXFromChunk(secondChunk)
-      
+
       makePathBetweenTwoSetsOfChunksYXPoints(firstChunkY, firstChunkX, secondChunkY, secondChunkX)
-      
+
     end
+
   endY = endY + 1
   startY = startY - 1
   startX = startX - 1
- 
+
   end
 end
 
 --Connects all chunks in a column in a section, for all columns right of the center
 local function addPathsToRightColumn()
-  
+
   local startY = 5
   local endY = 6
   local startX = 6
-  
+
   while(startY > 0) do
     for i = startY, endY - 1 do
       local firstChunk = PathMaker.chunks[i][startX]
       local secondChunk = PathMaker.chunks[i+1][startX]
-    
+
       local firstChunkY = 0
       local firstChunkX = 0
-  
+
       firstChunkY, firstChunkX = getYXFromChunk(firstChunk)
-  
+
       local secondChunkY = 0
       local secondChunkX = 0
-    
+
       secondChunkY, secondChunkX = getYXFromChunk(secondChunk)
-      
+
       makePathBetweenTwoSetsOfChunksYXPoints(firstChunkY, firstChunkX, secondChunkY, secondChunkX)
-      
+
     end
   endY = endY + 1
   startY = startY - 1
   startX = startX + 1
-  
+
   end
 
 end
 
 --Connects all chunks in a row in a section, for all columns top of the center
 local function addPathsToTopRow()
-  
+
   local startY = 5
   local startX = 5
   local endX = 6
-  
+
   while(startX > 0) do
     for i = startX, endX - 1  do
       local firstChunk = PathMaker.chunks[startY][i]
       local secondChunk = PathMaker.chunks[startY][i+1]
-    
+
       local firstChunkY = 0
       local firstChunkX = 0
-  
+
       firstChunkY, firstChunkX = getYXFromChunk(firstChunk)
-  
+
       local secondChunkY = 0
       local secondChunkX = 0
-    
+
       secondChunkY, secondChunkX = getYXFromChunk(secondChunk)
-      
+
       makePathBetweenTwoSetsOfChunksYXPoints(firstChunkY, firstChunkX, secondChunkY, secondChunkX)
     end
   endX = endX + 1
   startY = startY - 1
   startX = startX - 1
-  
+
   end
 
 end
@@ -176,28 +177,28 @@ local function addPathsToBottomRow()
   local startY = 6
   local startX = 5
   local endX = 6
-  
+
   while(startX > 0) do
     for i = startX, endX - 1  do
       local firstChunk = PathMaker.chunks[startY][i]
       local secondChunk = PathMaker.chunks[startY][i+1]
-    
+
       local firstChunkY = 0
       local firstChunkX = 0
-  
+
       firstChunkY, firstChunkX = getYXFromChunk(firstChunk)
-  
+
       local secondChunkY = 0
       local secondChunkX = 0
-    
+
       secondChunkY, secondChunkX = getYXFromChunk(secondChunk)
-      
+
       makePathBetweenTwoSetsOfChunksYXPoints(firstChunkY, firstChunkX, secondChunkY, secondChunkX)
     end
   startX = startX - 1
   endX = endX + 1
   startY = startY + 1
-  
+
   end
 
 end
@@ -206,29 +207,29 @@ end
 -- to itself. The chunk may have one-to-multiple connections to other sections
 
 local function addPaths()
-  
+
   addPathsToTopRow()
   addPathsToBottomRow()
   addPathsToLeftColumn()
   addPathsToRightColumn()
-  
+
 end
 
 
 -- Constructor
 function PathMaker:new (o, chunks, map)
   local o = o or {}
-  
+
   self.chunks = chunks
   self.map = map
-  
+
   addPaths()
-  
+
   return setmetatable(o, PathMakerMT)
 end
 
 function PathMaker:getChunksAndMapWithPaths()
-  return self.chunks, self.map 
+  return self.chunks, self.map
 end
 
 return PathMaker

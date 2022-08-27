@@ -2,21 +2,23 @@
 local Draw = require("Draw")
 
 -- Class
-local ConnectionMaker = 
-{ chunks = {}, 
+local ConnectionMaker =
+{
+  chunks = {},
   map = {},
   chunkYSide = 0,
-  chunkXSide = 0}
+  chunkXSide = 0
+}
 local ConnectionMakerMT = {__index = ConnectionMaker}
 
 -- Private methods
 
 -- Gets the a y,x point for a chunk. Which is taken (a point in a room or the middle of the chunk) depends on if the chunk has a room or not.
 local function getYXFromChunk(chunk)
-  
+
   local chunkY = 0
   local chunkX = 0
-  
+
   if(chunk:isEmpty() == true) then
     chunkY = chunk:getMiddleY()
     chunkX = chunk:getMiddleX()
@@ -25,7 +27,7 @@ local function getYXFromChunk(chunk)
     chunkX = chunk:getMiddleXRoom()
   end
   return chunkY, chunkX
-  
+
 end
 
 -- Connects two chunks from different sections bottom to top. When it gets to the edge of the bottom chunk it creates a closed door. 
